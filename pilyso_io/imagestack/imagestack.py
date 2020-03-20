@@ -22,7 +22,7 @@ class Dimensions(object):
 
     @classmethod
     def by_char(cls, char):
-        return cls.all_by_char()[char]
+        return cls.all_by_char()[char.lower()]
 
     # noinspection PyClassHasNoInit
     class Dimension(object):
@@ -32,7 +32,7 @@ class Dimensions(object):
     class Time(Dimension):
         char = 't'
 
-    # noinspection PyClassHasNoInit
+    # noinspection PyClassHasNoInitr
     class PositionXY(Dimension):
         char = 'r'  # region
 
@@ -208,9 +208,11 @@ class ImageStack(ImageStackAPI):
             if self_copy.is_fixed():
                 filters = []
                 for a_filter in self.filters:
-                    if issubclass(a_filter, ImageStackFilter):
+                    if isinstance(a_filter, type) and issubclass(a_filter, ImageStackFilter):
                         filter_instance = a_filter()
                         filters.append(filter_instance.filter)
+                    elif isinstance(a_filter, ImageStackFilter):
+                        filters.append(a_filter.filter)
                     else:
                         filters.append(a_filter)
 
@@ -364,6 +366,11 @@ class ImageStack(ImageStackAPI):
             # noinspection PyProtectedMember
             to_open = to_open._replace(scheme='file')
 
+        if to_open.scheme == 'file' and to_open.fragment:
+            # if a filename contains a "#", it'll be split off ... rejoin
+            # noinspection PyProtectedMember
+            to_open = to_open._replace(fragment='', path=to_open.path + '#' + to_open.fragment)
+
         def recursive_subclasses(class_, collector):
             collector.add(class_)
             for inner_class_ in class_.__subclasses__():
@@ -488,6 +495,7 @@ class ImageStack(ImageStackAPI):
             # eg. when multiple files belong to one experiment, but all start at 0 albeit consecutive
             time_offset_str = 'time_offset'
             if time_offset_str in self.parameters:
+                # noinspection PyProtectedMember
                 meta = meta._replace(time=meta.time + float(self.parameters[time_offset_str]))
 
         return meta

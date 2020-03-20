@@ -14,7 +14,7 @@ import warnings
 with warnings.catch_warnings():
     warnings.simplefilter('ignore')
     # code tend to throw warnings because of missing C extensions
-    from .external.czifile import CziFile, TimeStamps, etree as czifile_etree
+    from czifile import CziFile, TimeStamps, etree as czifile_etree
 
 
 def _is_dimension_oi(d):
@@ -97,7 +97,7 @@ class CziImageStack(ImageStack):
 
         for scene in sorted(
                 self.metadata.findall("./Metadata/Information/Image/Dimensions/S/Scenes/Scene"),
-                key=lambda scene: int(scene.attrib['Index'])):
+                key=lambda scene_: int(scene_.attrib['Index'])):
             center_position = next(child.text for child in scene.getchildren() if child.tag == "CenterPosition")
             x, y = center_position.split(',')
             positions.append((float(x), float(y)))
