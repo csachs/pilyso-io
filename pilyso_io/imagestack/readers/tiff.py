@@ -35,7 +35,10 @@ class TiffImageStack(ImageStack):
                 for axis in self._tiff_axes
             )
 
-        assert self._tiff_axes.endswith('YX')
+        if 'S' in self._tiff_axes and 'C' not in self._tiff_axes:
+            self._tiff_axes = self._tiff_axes.replace('S', 'C')
+
+        assert self._tiff_axes.endswith('YX') or self._tiff_axes.endswith('YXS') or self._tiff_axes.endswith('YXC')
 
         dim = []
         sizes = []
@@ -51,7 +54,11 @@ class TiffImageStack(ImageStack):
             else:
                 raise RuntimeError('There is an unknown axis (Q) in the TIFF file,'
                                    'but as well T, R, Z axes. Please change the TIFF file.')
-        for char, size in zip(self._tiff_axes[:-2], self._tiff_shape[:-2]):
+
+        for char, size in zip(self._tiff_axes, self._tiff_shape):
+            if char in ('X', 'Y'):
+                continue
+
             dim.append(Dimensions.by_char(char))
             sizes.append(size)
 
@@ -64,9 +71,9 @@ class TiffImageStack(ImageStack):
 
     def get_data(self, what):
         key = tuple([
-            what.get(Dimensions.by_char(char), 0)
+            what.get(Dimensions.by_char(char), 0) if char not in ('X', 'Y') else slice(None, None, None)
             for char, size
-            in zip(self._tiff_axes[:-2], self._tiff_shape[:-2])
+            in zip(self._tiff_axes, self._tiff_shape)
         ])
         data = self._tiff_memmap.__getitem__(key)
 
