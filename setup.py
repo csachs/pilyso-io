@@ -16,8 +16,7 @@ setup(
     packages=find_packages(),
     requires=['numpy', 'nd2file', 'tifffile', 'czifile'],
     extras_require={
-        'ndip': ['scipy'],
-        'fast_ndip': ['opencv']
+        'ndip': ['opencv']
     },
     license='BSD',
     classifiers=[

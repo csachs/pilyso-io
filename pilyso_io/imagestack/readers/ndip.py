@@ -1,61 +1,20 @@
 # non-destructive image processing
 
+import os
 import numpy as np
 import json
 
 from ..imagestack import ImageStack, Dimensions, ImageStackFilter
 
 
-def shift_image(image, shift, background='input'):
-    """
+def shift_image(image, shift):
+    import cv2
 
-    :param image:
-    :param shift:
-    :param background:
-    :return: :raise ValueError:
-    """
-
-    vertical, horizontal = shift
-    vertical, horizontal = round(vertical), round(horizontal)
-    height, width = image.shape
-
-    if vertical < 0:
-        source_vertical_lower = -vertical
-        source_vertical_upper = height
-        destination_vertical_lower = 0
-        destination_vertical_upper = vertical
-    else:
-        source_vertical_lower = 0
-        source_vertical_upper = height - vertical
-        destination_vertical_lower = vertical
-        destination_vertical_upper = height
-
-    if horizontal < 0:
-        source_horizontal_lower = -horizontal
-        source_horizontal_upper = width
-        destination_horizontal_lower = 0
-        destination_horizontal_upper = horizontal
-    else:
-        source_horizontal_lower = 0
-        source_horizontal_upper = width - horizontal
-        destination_horizontal_lower = horizontal
-        destination_horizontal_upper = width
-
-    if background == 'input':
-        new_image = image.copy()
-    elif background == 'blank':
-        new_image = np.zeros_like(image)
-    else:
-        raise ValueError("Unsupported background method passed. Use background or blank.")
-
-    new_image[
-        destination_vertical_lower:destination_vertical_upper,
-        destination_horizontal_lower:destination_horizontal_upper
-    ] = image[
-        source_vertical_lower:source_vertical_upper,
-        source_horizontal_lower:source_horizontal_upper
-    ]
-    return new_image
+    return cv2.warpAffine(image,
+                          np.array([[1.0, 0.0, shift[1]], [0.0, 1.0, shift[0]]]),
+                          (image.shape[1], image.shape[0]),
+                          flags=cv2.INTER_LINEAR,
+                          borderMode=cv2.BORDER_REFLECT)
 
 
 class TranslationFilter(ImageStackFilter):
@@ -78,47 +37,12 @@ class CropFilter(ImageStackFilter):
         return image[h_low:h_high, w_low:w_high]
 
 
-try:
-    # noinspection PyUnresolvedReferences
+def rotate_image(image, angle):
     import cv2
 
-    def rotate_image(image, angle):
-        """
-        Rotates image for angle degrees. Shape remains the same.
-
-        :param image: input image
-        :param angle: angle to rotate
-        :type image: numpy.ndarray
-        :type angle: float
-        :rtype: numpy.ndarray
-        :return: rotated image
-
-        >>> rotate_image(np.array([[1, 0, 0, 0],
-        ...                        [0, 1, 0, 0],
-        ...                        [0, 0, 1, 0],
-        ...                        [0, 0, 0, 1]], dtype=np.uint8), 45.0)
-        array([[0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [1, 1, 1, 1],
-               [0, 0, 0, 0]], dtype=uint8)
-        """
-
-        return cv2.warpAffine(image,
-                              cv2.getRotationMatrix2D((image.shape[1] * 0.5, image.shape[0] * 0.5), angle, 1.0),
-                              (image.shape[1], image.shape[0]))
-
-except ImportError:
-    # DO NOT USE from scipy.misc import imrotate
-    from scipy.ndimage.interpolation import rotate
-
-    def rotate_image(image, angle):
-        """
-
-        :param image:
-        :param angle:
-        :return:
-        """
-        return rotate(image, angle=angle, reshape=False)
+    return cv2.warpAffine(image,
+                          cv2.getRotationMatrix2D((image.shape[1] * 0.5, image.shape[0] * 0.5), angle, 1.0),
+                          (image.shape[1], image.shape[0]))
 
 
 class RotationFilter(ImageStackFilter):
@@ -159,6 +83,12 @@ class NDIPImageStack(ImageStack):
         with open(location.path) as fp:
             data = json.load(fp)
 
+        try:
+            import cv2
+        except ImportError:
+            print("NDIP does need OpenCV for accelerated image processing.")
+            raise
+
         assert 'version' in data
         assert 'type' in data
 
@@ -173,7 +103,17 @@ class NDIPImageStack(ImageStack):
 
         assert first_layer['type'] == 'input'
 
-        self._ndip_ims = ImageStack(first_layer['uri'])
+        cwd = os.getcwd()
+
+        try:
+
+            if os.path.isfile(location.path):
+                os.chdir(os.path.dirname(os.path.abspath(location.path)))
+
+            self._ndip_ims = ImageStack(first_layer['uri'])
+
+        finally:
+            os.chdir(cwd)
 
         self.set_dimensions_and_sizes(self._ndip_ims.dimensions, self._ndip_ims.sizes)
 

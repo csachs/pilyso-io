@@ -35,7 +35,7 @@ for position in range(ims.size[Dimensions.PositionXY]):
 
 # NDIP
 
-Bioimage data is often very large, and copying around data is space and time consuming. However, quite often a
+Bioimage data is often very large, and copying around data is space and time-consuming. However, quite often a
 lot of processing steps have to be performed before the data can be meaningfully analyzed.
 
 To this extend, NDIP is a JSON-based format, which contains individual processing steps, such as rotations or shifts, 
