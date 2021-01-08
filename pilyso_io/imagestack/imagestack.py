@@ -112,8 +112,12 @@ class MinMaxFilter(ImageStackFilter):
 
 
 class UnwrapFilter(ImageStackFilter):
-    def filter(self, image):
+    @staticmethod
+    def unwrap(image):
         return image.view(np.ndarray)
+
+    def filter(self, image):
+        return self.__class__.unwrap(image)
 
 
 Metadata = namedtuple('Metadata', ['time', 'position', 'calibration'])
