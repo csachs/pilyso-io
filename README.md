@@ -45,7 +45,7 @@ The current format is experimental and subject to change without notice!
 
 # OMERO
 
-See [github.com/csachs/pilyso-io-omero](https://github.com/csachs/pilyso-io-omero) for GPL licensed code for accessing OMERO servers.
+See [github.com/modsim/pilyso-io-omero](https://github.com/modsim/pilyso-io-omero) for GPL licensed code for accessing OMERO servers.
 
 # License
 

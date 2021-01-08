@@ -7,12 +7,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='pilyso_io',
-    version='0.0.1.dev1',
+    version='0.0.1.dev2',
     description='pilyso - image reading library',
     long_description='Python Image anaLYsis SOftware library',
     author='Christian Sachs',
     author_email='c.sachs@fz-juelich.de',
-    url='',
+    url='https://github.com/modsim/pilyso-io',
     packages=find_packages(),
     requires=['numpy', 'nd2file', 'tifffile', 'czifile'],
     extras_require={
@@ -28,9 +28,7 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
-
     ]
 )
