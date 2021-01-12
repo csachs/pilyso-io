@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pilyso_io',
-    version='0.0.1.dev2',
+    version='0.0.1.dev3',
     description='pilyso - image reading library',
     long_description='Python Image anaLYsis SOftware library',
     author='Christian Sachs',
