@@ -80,11 +80,11 @@ class OMETiffImageStack(TiffImageStack):
         images = {}
 
         if self.treat_z_as_mp:  # handling for mal-encoded files
-            image_nodes = [n for n in root.getchildren() if n.tag == ElementTree.QName(ns, 'Image')]
+            image_nodes = [n for n in root if n.tag == ElementTree.QName(ns, 'Image')]
             # there will be only one image node
             imn = image_nodes[0]
 
-            pixels = [n for n in imn.getchildren() if n.tag == ElementTree.QName(ns, 'Pixels')][0]
+            pixels = [n for n in imn if n.tag == ElementTree.QName(ns, 'Pixels')][0]
 
             pa = pixels.attrib
 
@@ -94,12 +94,12 @@ class OMETiffImageStack(TiffImageStack):
 
             tiff_data = {
                 (n.attrib['FirstC'], n.attrib['FirstT'], n.attrib['FirstZ']): n.attrib
-                for n in pixels.getchildren() if n.tag == ElementTree.QName(ns, 'TiffData')
+                for n in pixels if n.tag == ElementTree.QName(ns, 'TiffData')
             }
             planes = [dict(
                 list(n.attrib.items()) +
                 list(tiff_data[(n.attrib['TheC'], n.attrib['TheT'], n.attrib['TheZ'])].items()) + pai
-            ) for n in pixels.getchildren() if n.tag == ElementTree.QName(ns, 'Plane')]
+            ) for n in pixels if n.tag == ElementTree.QName(ns, 'Plane')]
 
             planes = [{k: float_or_int(v) for k, v in p.items()} for p in planes]
             multipoints = range(planes[0]['SizeZ'])
@@ -116,9 +116,9 @@ class OMETiffImageStack(TiffImageStack):
             images = {mp: [_correct_attributes(p, planes) for p in planes] for mp, planes in images.items()}
 
         else:
-            image_nodes = [n for n in root.getchildren() if n.tag == ElementTree.QName(ns, 'Image')]
+            image_nodes = [n for n in root if n.tag == ElementTree.QName(ns, 'Image')]
             for n, imn in enumerate(image_nodes):
-                pixels = [n for n in imn.getchildren() if n.tag == ElementTree.QName(ns, 'Pixels')][0]
+                pixels = [n for n in imn if n.tag == ElementTree.QName(ns, 'Pixels')][0]
 
                 pa = pixels.attrib
 
@@ -128,12 +128,12 @@ class OMETiffImageStack(TiffImageStack):
 
                 tiff_data = {
                     (n.attrib['FirstC'], n.attrib['FirstT'], n.attrib['FirstZ']): n.attrib
-                    for n in pixels.getchildren() if n.tag == ElementTree.QName(ns, 'TiffData')
+                    for n in pixels if n.tag == ElementTree.QName(ns, 'TiffData')
                 }
                 planes = [dict(
                     list(n.attrib.items()) +
                     list(tiff_data[(n.attrib['TheC'], n.attrib['TheT'], n.attrib['TheZ'])].items()) + pai
-                ) for n in pixels.getchildren() if n.tag == ElementTree.QName(ns, 'Plane')]
+                ) for n in pixels if n.tag == ElementTree.QName(ns, 'Plane')]
 
                 planes = [{k: float_or_int(v) for k, v in p.items()} for p in planes]
 
