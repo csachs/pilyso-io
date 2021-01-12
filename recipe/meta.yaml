@@ -1,0 +1,50 @@
+{% set name = "pilyso-io" %}
+{% set version = "0.0.1.dev2" %}
+{% set sha256 = "" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  # git_rev: 8a47ae1dfccd8e1ec59768ec5798475918ae3fa7
+  # git_url: https://github.com/csachs/pilyso-io
+  # fn: {{ name }}-{{ version }}.tar.gz
+  # url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  # sha256: {{ sha256 }}
+  path: ..
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
+  noarch: python
+
+requirements:
+  host:
+    - python
+    - pip
+  run:
+    - python
+    - numpy
+    - tifffile
+    - czifile
+    - nd2file
+
+test:
+  imports:
+    - pilyso_io.imagestack
+    - pilyso_io.imagestack.readers
+
+about:
+  home: https://github.com/modsim/pilyso-io
+  license: BSD-2-Clause
+  license_family: BSD
+  summary: 'Python Image anaLYsis SOftware IO part – abstracted bioimage access'
+  description: |
+    Python Image anaLYsis SOftware IO part – abstracted bioimage access
+  doc_url: https://github.com/modsim/pilyso-io
+  dev_url: https://github.com/modsim/pilyso-io
+
+extra:
+  recipe-maintainers:
+    - csachs
